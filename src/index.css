@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --font-display: "Unbounded Variable", "Unbounded", sans-serif;
+  --font-sans: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", sans-serif;
+  
+  --shadow-neon: 0 0 20px rgba(239, 103, 55, 0.3);
+}
+
+:root {
+  --background: #F4F1EC;
+  --foreground: #3D3F40;
+  --card: rgba(255, 255, 255, 0.4); /* glass-card background matching Design HTML */
+  --border: #9BACD8;
+  --muted: rgba(61, 63, 64, 0.6);
+  --primary: #EF6737;
+  --primary-foreground: #F4F1EC;
+}
+
+.dark {
+  --background: #3D3F40;
+  --foreground: #F4F1EC;
+  --card: rgba(61, 63, 64, 0.4); /* balanced glass-card background for dark mode */
+  --border: #9BACD8;
+  --muted: rgba(244, 241, 236, 0.6);
+  --primary: #EF6737;
+  --primary-foreground: #3D3F40;
+}
+
+/* Base resets & transitions */
+html, body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+}
+
+/* Glassmorphism utility matching .glass-card in Design HTML */
+.glass-panel {
+  background: var(--card);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* Selection colors */
+::selection {
+  background-color: #EF6737;
+  color: #F4F1EC;
+}
+
+/* Dot matrix class from Design HTML */
+.dot-matrix {
+  background-image: radial-gradient(var(--foreground) 1px, transparent 1px);
+  background-size: 4px 4px;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Halftone liquid animation text styles */
+.halftone-text {
+  position: relative;
+  display: inline-block;
+  color: transparent;
+  background-image: radial-gradient(#EF6737 32%, transparent 35%);
+  background-size: 10px 10px;
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.dark .halftone-text {
+  background-image: radial-gradient(#EF6737 32%, transparent 35%);
+}
+
+/* SVG liquid distortion filter definition */
+@keyframes liquidWave {
+  0% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-5px) scaleY(1.05);
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Quite Leverage",
+  "description": "High-end scroll portfolio featuring light/dark theme toggle, dual-role auth modal, advanced parallax projects, and fluid halftone liquid footer animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
