@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { Sun, Moon, LogIn, Menu, X } from 'lucide-react';
+import { Sun, Moon, LogIn, LogOut, Menu, X, User } from 'lucide-react';
 import { useTheme } from '../lib/theme';
+import { useAuth } from '../lib/authContext';
 
 interface HeaderProps {
   onOpenAuth: () => void;
@@ -9,6 +10,7 @@ interface HeaderProps {
 
 export default function Header({ onOpenAuth }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -76,15 +78,35 @@ export default function Header({ onOpenAuth }: HeaderProps) {
             )}
           </button>
 
-          {/* Login Button */}
-          <button
-            id="login-btn-desktop"
-            onClick={onOpenAuth}
-            className="px-5 py-2.5 rounded-lg bg-foreground/5 hover:bg-primary border border-border/30 hover:border-transparent font-sans text-xs font-bold tracking-widest text-foreground hover:text-primary-foreground hover:shadow-neon transition-all duration-300 flex items-center gap-2 cursor-pointer"
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            LOGIN
-          </button>
+          {/* Login / Profile Button */}
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col items-end">
+                <span className="font-sans text-[10px] font-bold text-foreground/90 truncate max-w-[120px]" title={user.email || ''}>
+                  {user.email}
+                </span>
+                <span className="font-mono text-[8px] text-primary font-bold tracking-widest uppercase">
+                  {user.role === 'admin' ? 'ADMIN' : 'CLIENT'}
+                </span>
+              </div>
+              <button
+                onClick={logout}
+                className="p-2.5 rounded-full bg-foreground/5 hover:bg-red-500/10 border border-border/20 hover:border-red-500/40 text-foreground hover:text-red-500 transition-all duration-300 cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              id="login-btn-desktop"
+              onClick={onOpenAuth}
+              className="px-5 py-2.5 rounded-lg bg-foreground/5 hover:bg-primary border border-border/30 hover:border-transparent font-sans text-xs font-bold tracking-widest text-foreground hover:text-primary-foreground hover:shadow-neon transition-all duration-300 flex items-center gap-2 cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              LOGIN
+            </button>
+          )}
         </div>
 
         {/* Mobile Controls Trigger */}
@@ -130,17 +152,41 @@ export default function Header({ onOpenAuth }: HeaderProps) {
                 </a>
               ))}
               <div className="h-[1px] bg-border/20 my-2" />
-              <button
-                id="login-btn-mobile"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onOpenAuth();
-                }}
-                className="w-full py-3 rounded-lg bg-primary font-sans text-xs font-bold tracking-widest text-primary-foreground hover:shadow-neon transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <LogIn className="w-4 h-4" />
-                LOGIN
-              </button>
+              {user ? (
+                <div className="flex flex-col gap-4 bg-foreground/[0.02] border border-border/10 rounded-xl p-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
+                      <span className="font-sans text-xs font-bold text-foreground truncate max-w-[180px]">{user.email}</span>
+                      <span className="font-mono text-[9px] text-primary font-bold tracking-widest uppercase mt-0.5">
+                        {user.role === 'admin' ? 'ADMIN' : 'CLIENT'}
+                      </span>
+                    </div>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="w-full py-3 rounded-lg bg-red-500/10 hover:bg-red-500 border border-red-500/30 hover:border-transparent font-sans text-xs font-bold tracking-widest text-red-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    SIGN OUT
+                  </button>
+                </div>
+              ) : (
+                <button
+                  id="login-btn-mobile"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenAuth();
+                  }}
+                  className="w-full py-3 rounded-lg bg-primary font-sans text-xs font-bold tracking-widest text-primary-foreground hover:shadow-neon transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  LOGIN
+                </button>
+              )}
             </div>
           </motion.div>
         )}

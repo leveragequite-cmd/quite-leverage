@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
+import { X, Mail, Lock, LogIn, ArrowRight, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '../lib/authContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -9,12 +10,16 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const { login, register, loginWithGoogle, isFirebase } = useAuth();
+  
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [role, setRole] = useState<'client' | 'admin'>('client');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error('Please fill in all fields', {
@@ -27,35 +32,63 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       return;
     }
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success(`Successfully logged in as ${role === 'client' ? 'Client' : 'Administrator'}`, {
-        description: `Welcome back, ${email}!`,
+    if (mode === 'signup' && password !== confirmPassword) {
+      toast.error('Passwords do not match', {
         style: {
           background: 'var(--background)',
           color: 'var(--foreground)',
           borderColor: 'var(--border)',
         }
       });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (mode === 'signin') {
+        await login(email, password, role);
+        toast.success(`Welcome back! Logged in as ${role === 'client' ? 'Client' : 'Administrator'}`, {
+          description: email,
+          style: {
+            background: 'var(--background)',
+            color: 'var(--foreground)',
+            borderColor: 'var(--border)',
+          }
+        });
+      } else {
+        await register(email, password, role);
+        toast.success(`Account created! Logged in as ${role === 'client' ? 'Client' : 'Administrator'}`, {
+          description: email,
+          style: {
+            background: 'var(--background)',
+            color: 'var(--foreground)',
+            borderColor: 'var(--border)',
+          }
+        });
+      }
       onClose();
       // Reset inputs
       setEmail('');
       setPassword('');
-    }, 1200);
+      setConfirmPassword('');
+    } catch (err: any) {
+      toast.error(err.message || 'Authentication failed', {
+        style: {
+          background: 'var(--background)',
+          color: 'var(--foreground)',
+          borderColor: 'var(--border)',
+        }
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    toast.success('Initiating secure Google connection...', {
-      description: `Connecting ${role === 'client' ? 'Client Portal' : 'Admin Console'}`,
-      style: {
-        background: 'var(--background)',
-        color: 'var(--foreground)',
-        borderColor: 'var(--border)',
-      }
-    });
-    setTimeout(() => {
-      toast.success(`Authenticated via Google as ${role === 'client' ? 'Client' : 'Admin'}!`, {
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      await loginWithGoogle(role);
+      toast.success(`Authenticated with Google as ${role === 'client' ? 'Client' : 'Admin'}!`, {
         style: {
           background: 'var(--background)',
           color: 'var(--foreground)',
@@ -63,7 +96,17 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         }
       });
       onClose();
-    }, 1500);
+    } catch (err: any) {
+      toast.error(err.message || 'Google Authentication failed', {
+        style: {
+          background: 'var(--background)',
+          color: 'var(--foreground)',
+          borderColor: 'var(--border)',
+        }
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -90,22 +133,29 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {/* Design Accents */}
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-primary" />
             
+            {/* Mode Tag */}
+            <div className="absolute top-4 left-4">
+              <span className="font-mono text-[8px] bg-primary/10 border border-primary/20 text-primary px-1.5 py-0.5 rounded font-bold uppercase">
+                {isFirebase ? 'REAL_AUTH' : 'SIMULATION_MODE'}
+              </span>
+            </div>
+
             {/* Close Button */}
             <button
               id="close-auth-modal"
               onClick={onClose}
-              className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-foreground/10 text-foreground/70 hover:text-foreground transition-all duration-200"
+              className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-foreground/10 text-foreground/70 hover:text-foreground transition-all duration-200 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Header */}
-            <div className="text-center mb-6">
-              <h2 className="font-display text-xl font-bold tracking-tight text-foreground">
-                PORTAL ACCESS
+            <div className="text-center mb-6 mt-2">
+              <h2 className="font-display text-xl font-bold tracking-tight text-foreground uppercase">
+                {mode === 'signin' ? 'PORTAL ACCESS' : 'CREATE PORTAL'}
               </h2>
               <p className="font-sans text-xs text-muted mt-1 uppercase tracking-wider">
-                Select your workspace credentials
+                {mode === 'signin' ? 'Select your credentials' : 'Register your developer account'}
               </p>
             </div>
 
@@ -123,7 +173,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <button
                 type="button"
                 onClick={() => setRole('client')}
-                className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 ${
+                className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 cursor-pointer ${
                   role === 'client' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
                 }`}
               >
@@ -132,7 +182,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <button
                 type="button"
                 onClick={() => setRole('admin')}
-                className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 ${
+                className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 cursor-pointer ${
                   role === 'admin' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
                 }`}
               >
@@ -164,7 +214,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               type="button"
               id="google-oauth-btn"
               onClick={handleGoogleLogin}
-              className="w-full py-3 px-4 flex items-center justify-center gap-3 bg-foreground/5 hover:bg-foreground/10 border border-border/30 rounded-lg font-sans text-xs font-bold tracking-wider text-foreground hover:shadow-neon transition-all duration-300 mb-6 group"
+              disabled={isLoading}
+              className="w-full py-3 px-4 flex items-center justify-center gap-3 bg-foreground/5 hover:bg-foreground/10 border border-border/30 rounded-lg font-sans text-xs font-bold tracking-wider text-foreground hover:shadow-neon transition-all duration-300 mb-6 group cursor-pointer disabled:opacity-50"
             >
               <svg className="w-4 h-4 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -179,7 +230,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="flex items-center gap-3 mb-6">
               <div className="h-[1px] flex-grow bg-border/20" />
               <span className="font-sans text-[10px] tracking-widest text-muted uppercase font-medium">
-                OR EMAIL LOGIN
+                OR EMAIL {mode === 'signin' ? 'LOGIN' : 'SIGN UP'}
               </span>
               <div className="h-[1px] flex-grow bg-border/20" />
             </div>
@@ -210,22 +261,24 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <label className="block font-sans text-[11px] font-bold tracking-wider text-foreground/80 uppercase">
                     Password
                   </label>
-                  <a
-                    href="#forgot"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toast.info('Password recovery link sent to your workspace.', {
-                        style: {
-                          background: 'var(--background)',
-                          color: 'var(--foreground)',
-                          borderColor: 'var(--border)',
-                        }
-                      });
-                    }}
-                    className="font-sans text-[10px] text-primary hover:underline"
-                  >
-                    Forgot?
-                  </a>
+                  {mode === 'signin' && (
+                    <a
+                      href="#forgot"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toast.info('Password recovery instruction simulation sent.', {
+                          style: {
+                            background: 'var(--background)',
+                            color: 'var(--foreground)',
+                            borderColor: 'var(--border)',
+                          }
+                        });
+                      }}
+                      className="font-sans text-[10px] text-primary hover:underline"
+                    >
+                      Forgot?
+                    </a>
+                  )}
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
@@ -240,6 +293,26 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </div>
               </div>
 
+              {/* Confirm Password (only in sign up mode) */}
+              {mode === 'signup' && (
+                <div className="space-y-1.5">
+                  <label className="block font-sans text-[11px] font-bold tracking-wider text-foreground/80 uppercase">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/80 rounded-lg pl-10 pr-4 py-2.5 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
@@ -249,14 +322,32 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               >
                 {isLoading ? (
                   <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-foreground rounded-full animate-spin" />
-                ) : (
+                ) : mode === 'signin' ? (
                   <>
                     SECURE SIGN IN
-                    <ArrowRight className="w-4 h-4" />
+                    <LogIn className="w-4 h-4" />
+                  </>
+                ) : (
+                  <>
+                    CREATE ACCOUNT
+                    <UserPlus className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
+
+            {/* Toggle Sign In / Sign Up Mode Link */}
+            <div className="text-center mt-6">
+              <button
+                type="button"
+                onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+                className="font-sans text-xs text-muted hover:text-primary transition-colors cursor-pointer underline underline-offset-4"
+              >
+                {mode === 'signin' 
+                  ? "Don't have an account? Sign Up" 
+                  : 'Already have an account? Sign In'}
+              </button>
+            </div>
           </motion.div>
         </div>
       )}
