@@ -33,13 +33,15 @@ export default function Loader() {
           className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
         >
           <div className="text-center px-6 max-w-4xl">
-            {/* Animated accent dot */}
+            {/* Animated accent logo */}
             <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: [0, 1.2, 1], opacity: 1 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="w-4 h-4 bg-primary rounded-full mx-auto mb-6"
-            />
+              initial={{ scale: 0, opacity: 0, rotate: 0 }}
+              animate={{ scale: [0, 1.2, 1], opacity: 1, rotate: [0, 360] }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
+              className="w-16 h-16 mx-auto mb-6 rounded-2xl overflow-hidden border border-border/20 shadow-lg"
+            >
+              <img src="/logo.png" alt="Quite Leverage Logo" className="w-full h-full object-cover" />
+            </motion.div>
             
             {/* Main Logo Text */}
             <motion.h1

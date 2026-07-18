@@ -16,9 +16,12 @@ export default function Footer() {
         
         {/* Left column info */}
         <div className="md:col-span-5 space-y-4">
-          <span className="font-display text-sm font-black tracking-tighter text-primary">
-            QUITE LEVERAGE
-          </span>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="Quite Leverage Logo" className="w-7 h-7 rounded-lg object-cover border border-border/20" />
+            <span className="font-display text-sm font-black tracking-tighter text-primary">
+              QUITE LEVERAGE
+            </span>
+          </div>
           <p className="font-sans text-xs text-muted/90 max-w-sm leading-relaxed">
             High-performance, lightweight web solutions crafted for maximal return. We respect your constraints, delivering modern aesthetics without bloat.
           </p>

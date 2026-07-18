@@ -45,22 +45,22 @@ export default function ContactForm() {
       id: 'linkedin',
       name: 'LinkedIn',
       icon: <Linkedin className="w-5 h-5" />,
-      href: 'https://linkedin.com',
-      handle: 'quite-leverage'
+      href: 'https://www.linkedin.com/in/quiteleverage/',
+      handle: 'quiteleverage'
     },
     {
       id: 'instagram',
       name: 'Instagram',
       icon: <Instagram className="w-5 h-5" />,
-      href: 'https://instagram.com',
+      href: 'https://www.instagram.com/quite.leverage/',
       handle: '@quite.leverage'
     },
     {
       id: 'email',
       name: 'Email',
       icon: <Mail className="w-5 h-5" />,
-      href: 'mailto:info@quiteleverage.com',
-      handle: 'info@quiteleverage.com'
+      href: 'mailto:leveragequite@gmail.com',
+      handle: 'leveragequite@gmail.com'
     }
   ];
 

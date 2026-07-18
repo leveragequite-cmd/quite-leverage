@@ -39,9 +39,12 @@ export default function Header({ onOpenAuth }: HeaderProps) {
         {/* Brand Logotype */}
         <a 
           href="#" 
-          className="font-display text-base md:text-lg font-black tracking-tighter text-primary hover:scale-[1.02] transition-transform duration-200"
+          className="flex items-center gap-2.5 hover:scale-[1.02] transition-transform duration-200"
         >
-          QUITE LEVERAGE
+          <img src="/logo.png" alt="Quite Leverage Logo" className="w-8 h-8 rounded-lg object-cover border border-border/20" />
+          <span className="font-display text-base md:text-lg font-black tracking-tighter text-primary">
+            QUITE LEVERAGE
+          </span>
         </a>
 
         {/* Desktop Navigation */}
