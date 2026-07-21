@@ -8,8 +8,9 @@ export default function ContactForm() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) {
       toast.error('All contact fields are required', {
@@ -23,21 +24,49 @@ export default function ContactForm() {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success('Inquiry received successfully!', {
-        description: `Thank you, ${name}. We will get back to you at ${email} within 24 hours.`,
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/leveragequite@gmail.com", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+          _subject: `New Inquiry from Quite Leverage Website: ${name}`
+        })
+      });
+      
+      if (response.ok) {
+        toast.success('Inquiry submitted successfully!', {
+          description: `Thank you, ${name}. We have forwarded your message to leveragequite@gmail.com and will respond shortly.`,
+          style: {
+            background: 'var(--background)',
+            color: 'var(--foreground)',
+            borderColor: 'var(--border)',
+          }
+        });
+        // Clear form
+        setName('');
+        setEmail('');
+        setMessage('');
+      } else {
+        throw new Error('Failed to forward email.');
+      }
+    } catch (err) {
+      console.error('Email forward error:', err);
+      toast.error('Submission failed. Please check your internet connection or email us directly.', {
         style: {
           background: 'var(--background)',
           color: 'var(--foreground)',
           borderColor: 'var(--border)',
         }
       });
-      // Clear form
-      setName('');
-      setEmail('');
-      setMessage('');
-    }, 1500);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const socialLinks = [
@@ -136,48 +165,99 @@ export default function ContactForm() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {/* Name Input */}
                   <div className="space-y-2">
-                    <label className="block font-sans text-xs font-bold tracking-wider text-foreground/80 uppercase">
+                    <motion.label 
+                      animate={{ 
+                        x: focusedField === 'name' ? 4 : 0, 
+                        color: focusedField === 'name' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.8)' 
+                      }}
+                      className="block font-sans text-xs font-bold tracking-wider uppercase transition-colors duration-300"
+                    >
                       Your Name
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="John Doe"
-                      className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/85 rounded-lg px-4 py-3 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
-                    />
+                    </motion.label>
+                    <motion.div
+                      animate={{
+                        boxShadow: focusedField === 'name' ? '0 0 15px rgba(239, 103, 55, 0.2)' : '0 0 0px transparent',
+                        scale: focusedField === 'name' ? 1.01 : 1
+                      }}
+                      transition={{ duration: 0.2 }}
+                      className="rounded-lg overflow-hidden"
+                    >
+                      <input
+                        type="text"
+                        required
+                        value={name}
+                        onFocus={() => setFocusedField('name')}
+                        onBlur={() => setFocusedField(null)}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="John Doe"
+                        className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/85 rounded-lg px-4 py-3 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
+                      />
+                    </motion.div>
                   </div>
 
                   {/* Email Input */}
                   <div className="space-y-2">
-                    <label className="block font-sans text-xs font-bold tracking-wider text-foreground/80 uppercase">
+                    <motion.label
+                      animate={{ 
+                        x: focusedField === 'email' ? 4 : 0, 
+                        color: focusedField === 'email' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.8)' 
+                      }}
+                      className="block font-sans text-xs font-bold tracking-wider uppercase transition-colors duration-300"
+                    >
                       Email Address
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="nikesh@example.com"
-                      className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/85 rounded-lg px-4 py-3 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
-                    />
+                    </motion.label>
+                    <motion.div
+                      animate={{
+                        boxShadow: focusedField === 'email' ? '0 0 15px rgba(239, 103, 55, 0.2)' : '0 0 0px transparent',
+                        scale: focusedField === 'email' ? 1.01 : 1
+                      }}
+                      transition={{ duration: 0.2 }}
+                      className="rounded-lg overflow-hidden"
+                    >
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onFocus={() => setFocusedField('email')}
+                        onBlur={() => setFocusedField(null)}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="nikesh@example.com"
+                        className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/85 rounded-lg px-4 py-3 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
+                      />
+                    </motion.div>
                   </div>
                 </div>
 
                 {/* Message Input */}
                 <div className="space-y-2">
-                  <label className="block font-sans text-xs font-bold tracking-wider text-foreground/80 uppercase">
+                  <motion.label
+                    animate={{ 
+                      x: focusedField === 'message' ? 4 : 0, 
+                      color: focusedField === 'message' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.8)' 
+                    }}
+                    className="block font-sans text-xs font-bold tracking-wider uppercase transition-colors duration-300"
+                  >
                     Your Message
-                  </label>
-                  <textarea
-                    required
-                    rows={5}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Describe your website goals, pages required, and timeline..."
-                    className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/85 rounded-lg px-4 py-3 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300 resize-none"
-                  />
+                  </motion.label>
+                  <motion.div
+                    animate={{
+                      boxShadow: focusedField === 'message' ? '0 0 15px rgba(239, 103, 55, 0.2)' : '0 0 0px transparent',
+                      scale: focusedField === 'message' ? 1.005 : 1
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="rounded-lg overflow-hidden"
+                  >
+                    <textarea
+                      required
+                      rows={5}
+                      value={message}
+                      onFocus={() => setFocusedField('message')}
+                      onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Describe your website goals, pages required, and timeline..."
+                      className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/85 rounded-lg px-4 py-3 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300 resize-none"
+                    />
+                  </motion.div>
                 </div>
 
                 {/* Submit button */}

@@ -298,6 +298,7 @@ export default function ProjectsSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [hoveredDevice, setHoveredDevice] = useState<'desktop' | 'tablet' | 'mobile' | null>(null);
   const [iframeLoading, setIframeLoading] = useState(true);
 
   // Set iframe loading state back to true when selected project changes
@@ -479,37 +480,87 @@ export default function ProjectsSection() {
                 </div>
 
                 {/* Device Mode Switcher */}
-                <div className="flex items-center gap-1 bg-foreground/[0.04] p-1 border border-border/10 rounded-lg mx-auto md:mx-0">
+                <div className="relative flex items-center gap-1 bg-foreground/[0.04] p-1 border border-border/10 rounded-lg mx-auto md:mx-0 overflow-hidden">
                   <button
+                    onMouseEnter={() => setHoveredDevice('desktop')}
+                    onMouseLeave={() => setHoveredDevice(null)}
                     onClick={() => setDeviceMode('desktop')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-[10px] font-bold transition-all cursor-pointer ${
+                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-[10px] font-bold transition-colors duration-300 cursor-pointer z-10 select-none ${
                       deviceMode === 'desktop'
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : 'text-muted hover:text-foreground hover:bg-foreground/5'
+                        ? 'text-primary-foreground'
+                        : 'text-muted hover:text-foreground'
                     }`}
                   >
+                    {deviceMode === 'desktop' && (
+                      <motion.div
+                        layoutId="active-device-bg"
+                        className="absolute inset-0 bg-primary rounded-md -z-10 shadow-sm"
+                        transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                      />
+                    )}
+                    {hoveredDevice === 'desktop' && deviceMode !== 'desktop' && (
+                      <motion.div
+                        layoutId="hover-device-bg"
+                        className="absolute inset-0 bg-foreground/5 rounded-md -z-10"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
                     <Monitor className="w-3.5 h-3.5" />
                     <span>DESKTOP</span>
                   </button>
+
                   <button
+                    onMouseEnter={() => setHoveredDevice('tablet')}
+                    onMouseLeave={() => setHoveredDevice(null)}
                     onClick={() => setDeviceMode('tablet')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-[10px] font-bold transition-all cursor-pointer ${
+                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-[10px] font-bold transition-colors duration-300 cursor-pointer z-10 select-none ${
                       deviceMode === 'tablet'
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : 'text-muted hover:text-foreground hover:bg-foreground/5'
+                        ? 'text-primary-foreground'
+                        : 'text-muted hover:text-foreground'
                     }`}
                   >
+                    {deviceMode === 'tablet' && (
+                      <motion.div
+                        layoutId="active-device-bg"
+                        className="absolute inset-0 bg-primary rounded-md -z-10 shadow-sm"
+                        transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                      />
+                    )}
+                    {hoveredDevice === 'tablet' && deviceMode !== 'tablet' && (
+                      <motion.div
+                        layoutId="hover-device-bg"
+                        className="absolute inset-0 bg-foreground/5 rounded-md -z-10"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
                     <Tablet className="w-3.5 h-3.5" />
                     <span>TABLET</span>
                   </button>
+
                   <button
+                    onMouseEnter={() => setHoveredDevice('mobile')}
+                    onMouseLeave={() => setHoveredDevice(null)}
                     onClick={() => setDeviceMode('mobile')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-[10px] font-bold transition-all cursor-pointer ${
+                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md font-mono text-[10px] font-bold transition-colors duration-300 cursor-pointer z-10 select-none ${
                       deviceMode === 'mobile'
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : 'text-muted hover:text-foreground hover:bg-foreground/5'
+                        ? 'text-primary-foreground'
+                        : 'text-muted hover:text-foreground'
                     }`}
                   >
+                    {deviceMode === 'mobile' && (
+                      <motion.div
+                        layoutId="active-device-bg"
+                        className="absolute inset-0 bg-primary rounded-md -z-10 shadow-sm"
+                        transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                      />
+                    )}
+                    {hoveredDevice === 'mobile' && deviceMode !== 'mobile' && (
+                      <motion.div
+                        layoutId="hover-device-bg"
+                        className="absolute inset-0 bg-foreground/5 rounded-md -z-10"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
                     <Smartphone className="w-3.5 h-3.5" />
                     <span>MOBILE</span>
                   </button>

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { ArrowUp, Code, Terminal, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const handleScrollTop = () => {
@@ -37,10 +38,10 @@ export default function Footer() {
             ARCHITECTURAL MAP
           </span>
           <div className="grid grid-cols-2 gap-2">
-            <a href="#" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Hero Core</a>
-            <a href="#projects" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Deliveries</a>
-            <a href="#pricing" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Scale Pricing</a>
-            <a href="#contact" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Inquiries</a>
+            <Link to="/" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Home</Link>
+            <Link to="/about" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">About Us</Link>
+            <Link to="/portfolio" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Portfolio</Link>
+            <Link to="/discuss" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Let's Discuss</Link>
           </div>
         </div>
 

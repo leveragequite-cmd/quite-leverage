@@ -32,6 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const LOCAL_ROLES_KEY = 'quite-leverage-user-roles';
 const MOCK_USERS_KEY = 'quite-leverage-mock-users';
 const MOCK_SESSION_KEY = 'quite-leverage-mock-session';
+const PENDING_ROLE_KEY = 'quite-leverage-pending-role';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserSession | null>(null);
@@ -80,8 +81,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
-        // Fallback to client role unless already mapped in storage or email indicates admin
-        const mappedRole = getUserRole(firebaseUser.uid, firebaseUser.email?.includes('admin') ? 'admin' : 'client');
+        // Retrieve any pending role from user login action selection
+        const pendingRole = localStorage.getItem(PENDING_ROLE_KEY) as 'client' | 'admin' | null;
+        
+        // Find default role selection
+        const defaultRole = pendingRole || (firebaseUser.email?.includes('admin') ? 'admin' : 'client');
+        const mappedRole = getUserRole(firebaseUser.uid, defaultRole);
+        
+        if (pendingRole) {
+          localStorage.removeItem(PENDING_ROLE_KEY);
+        }
+
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
@@ -99,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // 2. Auth Actions
   const login = async (email: string, password: string, role: 'client' | 'admin') => {
     setIsLoading(true);
+    localStorage.setItem(PENDING_ROLE_KEY, role);
     try {
       if (isFirebaseConfigured && auth) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -127,6 +138,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));
         setUser(session);
       }
+      localStorage.removeItem(PENDING_ROLE_KEY);
+    } catch (e) {
+      localStorage.removeItem(PENDING_ROLE_KEY);
+      throw e;
     } finally {
       setIsLoading(false);
     }
@@ -134,6 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, role: 'client' | 'admin') => {
     setIsLoading(true);
+    localStorage.setItem(PENDING_ROLE_KEY, role);
     try {
       if (isFirebaseConfigured && auth) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -166,6 +182,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));
         setUser(session);
       }
+      localStorage.removeItem(PENDING_ROLE_KEY);
+    } catch (e) {
+      localStorage.removeItem(PENDING_ROLE_KEY);
+      throw e;
     } finally {
       setIsLoading(false);
     }
@@ -173,6 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async (role: 'client' | 'admin') => {
     setIsLoading(true);
+    localStorage.setItem(PENDING_ROLE_KEY, role);
     try {
       if (isFirebaseConfigured && auth) {
         const provider = new GoogleAuthProvider();
@@ -196,6 +217,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));
         setUser(session);
       }
+      localStorage.removeItem(PENDING_ROLE_KEY);
+    } catch (e) {
+      localStorage.removeItem(PENDING_ROLE_KEY);
+      throw e;
     } finally {
       setIsLoading(false);
     }

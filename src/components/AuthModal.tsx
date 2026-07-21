@@ -14,10 +14,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [role, setRole] = useState<'client' | 'admin'>('client');
+  const [hoveredRole, setHoveredRole] = useState<'client' | 'admin' | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,11 +162,30 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
 
             {/* Role Switcher (Slider) */}
-            <div className="relative flex p-1 bg-foreground/5 border border-border/40 rounded-full mb-6">
+            <div className="relative flex p-1 bg-foreground/5 border border-border/40 rounded-full mb-6 overflow-hidden">
+              {/* Hover Highlight */}
+              <AnimatePresence>
+                {hoveredRole && (
+                  <motion.div
+                    className="absolute top-1 bottom-1 rounded-full bg-foreground/10"
+                    layoutId="hover-role-bg"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    style={{
+                      left: hoveredRole === 'client' ? '4px' : '50%',
+                      right: hoveredRole === 'client' ? '50%' : '4px',
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+
+              {/* Active Selection Slider */}
               <motion.div
                 className="absolute top-1 bottom-1 rounded-full bg-primary"
                 layoutId="active-role-bg"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 32 }}
                 style={{
                   left: role === 'client' ? '4px' : '50%',
                   right: role === 'client' ? '50%' : '4px',
@@ -172,6 +193,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               />
               <button
                 type="button"
+                onMouseEnter={() => setHoveredRole('client')}
+                onMouseLeave={() => setHoveredRole(null)}
                 onClick={() => setRole('client')}
                 className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 cursor-pointer ${
                   role === 'client' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
@@ -181,6 +204,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </button>
               <button
                 type="button"
+                onMouseEnter={() => setHoveredRole('admin')}
+                onMouseLeave={() => setHoveredRole(null)}
                 onClick={() => setRole('admin')}
                 className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 cursor-pointer ${
                   role === 'admin' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
@@ -239,28 +264,57 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div className="space-y-1.5">
-                <label className="block font-sans text-[11px] font-bold tracking-wider text-foreground/80 uppercase">
+                <motion.label
+                  animate={{ 
+                    x: focusedField === 'auth-email' ? 4 : 0, 
+                    color: focusedField === 'auth-email' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.8)' 
+                  }}
+                  className="block font-sans text-[11px] font-bold tracking-wider uppercase transition-colors duration-300"
+                >
                   Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                </motion.label>
+                <motion.div 
+                  animate={{
+                    boxShadow: focusedField === 'auth-email' ? '0 0 15px rgba(239, 103, 55, 0.2)' : '0 0 0px transparent',
+                    scale: focusedField === 'auth-email' ? 1.01 : 1
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="relative rounded-lg overflow-hidden"
+                >
+                  <motion.div
+                    animate={{
+                      scale: focusedField === 'auth-email' ? 1.15 : 1,
+                      color: focusedField === 'auth-email' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.6)'
+                    }}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                  >
+                    <Mail className="w-4 h-4" />
+                  </motion.div>
                   <input
                     type="email"
                     required
                     value={email}
+                    onFocus={() => setFocusedField('auth-email')}
+                    onBlur={() => setFocusedField(null)}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@domain.com"
                     className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/80 rounded-lg pl-10 pr-4 py-2.5 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
                   />
-                </div>
+                </motion.div>
               </div>
 
               {/* Password */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <label className="block font-sans text-[11px] font-bold tracking-wider text-foreground/80 uppercase">
+                  <motion.label
+                    animate={{ 
+                      x: focusedField === 'auth-password' ? 4 : 0, 
+                      color: focusedField === 'auth-password' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.8)' 
+                    }}
+                    className="block font-sans text-[11px] font-bold tracking-wider uppercase transition-colors duration-300"
+                  >
                     Password
-                  </label>
+                  </motion.label>
                   {mode === 'signin' && (
                     <a
                       href="#forgot"
@@ -280,36 +334,76 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </a>
                   )}
                 </div>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                <motion.div
+                  animate={{
+                    boxShadow: focusedField === 'auth-password' ? '0 0 15px rgba(239, 103, 55, 0.2)' : '0 0 0px transparent',
+                    scale: focusedField === 'auth-password' ? 1.01 : 1
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="relative rounded-lg overflow-hidden"
+                >
+                  <motion.div
+                    animate={{
+                      scale: focusedField === 'auth-password' ? 1.15 : 1,
+                      color: focusedField === 'auth-password' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.6)'
+                    }}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                  >
+                    <Lock className="w-4 h-4" />
+                  </motion.div>
                   <input
                     type="password"
                     required
                     value={password}
+                    onFocus={() => setFocusedField('auth-password')}
+                    onBlur={() => setFocusedField(null)}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
                     className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/80 rounded-lg pl-10 pr-4 py-2.5 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
                   />
-                </div>
+                </motion.div>
               </div>
 
               {/* Confirm Password (only in sign up mode) */}
               {mode === 'signup' && (
                 <div className="space-y-1.5">
-                  <label className="block font-sans text-[11px] font-bold tracking-wider text-foreground/80 uppercase">
+                  <motion.label
+                    animate={{ 
+                      x: focusedField === 'auth-confirm' ? 4 : 0, 
+                      color: focusedField === 'auth-confirm' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.8)' 
+                    }}
+                    className="block font-sans text-[11px] font-bold tracking-wider uppercase transition-colors duration-300"
+                  >
                     Confirm Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                  </motion.label>
+                  <motion.div
+                    animate={{
+                      boxShadow: focusedField === 'auth-confirm' ? '0 0 15px rgba(239, 103, 55, 0.2)' : '0 0 0px transparent',
+                      scale: focusedField === 'auth-confirm' ? 1.01 : 1
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="relative rounded-lg overflow-hidden"
+                  >
+                    <motion.div
+                      animate={{
+                        scale: focusedField === 'auth-confirm' ? 1.15 : 1,
+                        color: focusedField === 'auth-confirm' ? 'var(--primary)' : 'rgba(61, 63, 64, 0.6)'
+                      }}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                    >
+                      <Lock className="w-4 h-4" />
+                    </motion.div>
                     <input
                       type="password"
                       required
                       value={confirmPassword}
+                      onFocus={() => setFocusedField('auth-confirm')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••••••"
                       className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary/80 rounded-lg pl-10 pr-4 py-2.5 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
                     />
-                  </div>
+                  </motion.div>
                 </div>
               )}
 

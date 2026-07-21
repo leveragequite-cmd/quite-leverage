@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { ArrowDown, Layers, Rocket, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function HeroSection() {
   return (
@@ -54,22 +55,22 @@ export default function HeroSection() {
           className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
         >
           {/* Main CTA */}
-          <a
-            href="#projects"
+          <Link
+            to="/portfolio"
             id="hero-cta-view-work"
             className="w-full sm:w-auto px-8 py-4 bg-primary hover:bg-primary-foreground hover:text-primary hover:border-primary border border-transparent rounded-xl font-display text-xs font-black tracking-widest text-primary-foreground hover:shadow-neon transition-all duration-300 text-center select-none cursor-pointer"
           >
             VIEW WORK
-          </a>
+          </Link>
 
           {/* Secondary CTA */}
-          <a
-            href="#pricing"
+          <Link
+            to="/discuss"
             id="hero-cta-pricing"
             className="w-full sm:w-auto px-8 py-4 bg-foreground/5 hover:bg-foreground/10 border border-border/40 rounded-xl font-display text-xs font-black tracking-widest text-foreground transition-all duration-300 text-center select-none cursor-pointer"
           >
-            SEE PRICING
-          </a>
+            GET A CUSTOM QUOTE
+          </Link>
         </motion.div>
       </div>
     </section>

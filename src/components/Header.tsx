@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Sun, Moon, LogIn, LogOut, Menu, X, User } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
 import { useTheme } from '../lib/theme';
 import { useAuth } from '../lib/authContext';
 
@@ -23,9 +24,10 @@ export default function Header({ onOpenAuth }: HeaderProps) {
   }, []);
 
   const menuItems = [
-    { label: 'PROJECTS', href: '#projects' },
-    { label: 'PRICING', href: '#pricing' },
-    { label: 'CONTACT', href: '#contact' },
+    { label: 'HOME', href: '/' },
+    { label: 'ABOUT US', href: '/about' },
+    { label: 'PORTFOLIO', href: '/portfolio' },
+    { label: 'LET\'S DISCUSS', href: '/discuss' },
   ];
 
   return (
@@ -39,26 +41,30 @@ export default function Header({ onOpenAuth }: HeaderProps) {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         {/* Brand Logotype */}
-        <a 
-          href="#" 
+        <Link 
+          to="/" 
           className="flex items-center gap-2.5 hover:scale-[1.02] transition-transform duration-200"
         >
           <img src="/logo.png" alt="Quite Leverage Logo" className="w-8 h-8 rounded-lg object-cover border border-border/20" />
           <span className="font-display text-base md:text-lg font-black tracking-tighter text-primary">
             QUITE LEVERAGE
           </span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {menuItems.map((item) => (
-            <a
+            <NavLink
               key={item.label}
-              href={item.href}
-              className="font-sans text-xs font-bold tracking-widest text-foreground/80 hover:text-primary transition-all duration-200"
+              to={item.href}
+              className={({ isActive }) => 
+                `font-sans text-xs font-bold tracking-widest transition-all duration-200 ${
+                  isActive ? 'text-primary' : 'text-foreground/80 hover:text-primary'
+                }`
+              }
             >
               {item.label}
-            </a>
+            </NavLink>
           ))}
         </nav>
 
@@ -142,14 +148,18 @@ export default function Header({ onOpenAuth }: HeaderProps) {
           >
             <div className="px-6 py-8 flex flex-col gap-6">
               {menuItems.map((item) => (
-                <a
+                <NavLink
                   key={item.label}
-                  href={item.href}
+                  to={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="font-sans text-xs font-extrabold tracking-widest text-foreground/80 hover:text-primary transition-colors"
+                  className={({ isActive }) => 
+                    `font-sans text-xs font-extrabold tracking-widest transition-colors ${
+                      isActive ? 'text-primary' : 'text-foreground/80 hover:text-primary'
+                    }`
+                  }
                 >
                   {item.label}
-                </a>
+                </NavLink>
               ))}
               <div className="h-[1px] bg-border/20 my-2" />
               {user ? (
