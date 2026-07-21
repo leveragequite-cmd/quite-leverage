@@ -154,84 +154,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {/* Header */}
             <div className="text-center mb-6 mt-2">
               <h2 className="font-display text-xl font-bold tracking-tight text-foreground uppercase">
-                {mode === 'signin' ? 'PORTAL ACCESS' : 'CREATE PORTAL'}
+                {mode === 'signin' ? 'CLIENT PORTAL ACCESS' : 'CREATE CLIENT PORTAL'}
               </h2>
               <p className="font-sans text-xs text-muted mt-1 uppercase tracking-wider">
-                {mode === 'signin' ? 'Select your credentials' : 'Register your developer account'}
+                {mode === 'signin' ? 'Sign in to access your project deliverables' : 'Register your client account'}
               </p>
-            </div>
-
-            {/* Role Switcher (Slider) */}
-            <div className="relative flex p-1 bg-foreground/5 border border-border/40 rounded-full mb-6 overflow-hidden">
-              {/* Hover Highlight */}
-              <AnimatePresence>
-                {hoveredRole && (
-                  <motion.div
-                    className="absolute top-1 bottom-1 rounded-full bg-foreground/10"
-                    layoutId="hover-role-bg"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    style={{
-                      left: hoveredRole === 'client' ? '4px' : '50%',
-                      right: hoveredRole === 'client' ? '50%' : '4px',
-                    }}
-                  />
-                )}
-              </AnimatePresence>
-
-              {/* Active Selection Slider */}
-              <motion.div
-                className="absolute top-1 bottom-1 rounded-full bg-primary"
-                layoutId="active-role-bg"
-                transition={{ type: 'spring', stiffness: 450, damping: 32 }}
-                style={{
-                  left: role === 'client' ? '4px' : '50%',
-                  right: role === 'client' ? '50%' : '4px',
-                }}
-              />
-              <button
-                type="button"
-                onMouseEnter={() => setHoveredRole('client')}
-                onMouseLeave={() => setHoveredRole(null)}
-                onClick={() => setRole('client')}
-                className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 cursor-pointer ${
-                  role === 'client' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
-                }`}
-              >
-                CLIENT PORTAL
-              </button>
-              <button
-                type="button"
-                onMouseEnter={() => setHoveredRole('admin')}
-                onMouseLeave={() => setHoveredRole(null)}
-                onClick={() => setRole('admin')}
-                className={`relative z-10 w-1/2 py-2 text-center text-xs font-display font-semibold transition-colors duration-300 cursor-pointer ${
-                  role === 'admin' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
-                }`}
-              >
-                ADMIN DASHBOARD
-              </button>
-            </div>
-
-            {/* Description according to role */}
-            <div className="h-6 overflow-hidden mb-6 text-center">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={role}
-                  initial={{ y: 15, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -15, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-sans text-xs text-muted/80 italic"
-                >
-                  {role === 'client' 
-                    ? "Manage your active project deliveries and schedules." 
-                    : "Access analytics, user databases, and platform controls."
-                  }
-                </motion.p>
-              </AnimatePresence>
             </div>
 
             {/* Google OAuth Button */}

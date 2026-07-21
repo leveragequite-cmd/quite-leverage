@@ -70,6 +70,9 @@ export default function App() {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/login" element={<Auth />} />
                 <Route path="/signin" element={<Auth />} />
+                <Route path="/admin" element={<Auth />} />
+                <Route path="/admin/login" element={<Auth />} />
+                <Route path="/secret-admin" element={<Auth />} />
               </Routes>
             </Suspense>
           </main>

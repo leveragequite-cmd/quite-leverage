@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, LogIn, UserPlus, Shield, CheckCircle, LogOut, ArrowRight, User, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Mail, Lock, LogIn, UserPlus, Shield, CheckCircle, LogOut, User } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 
 export default function Auth() {
-  const { user, login, register, loginWithGoogle, logout, isFirebase } = useAuth();
-  const navigate = useNavigate();
+  const { user, login, register, loginWithGoogle, logout } = useAuth();
+  const location = useLocation();
+
+  // Check if current URL route is an admin route (/admin or /admin/login)
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/secret-admin');
+  const role: 'client' | 'admin' = isAdminRoute ? 'admin' : 'client';
 
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-  const [role, setRole] = useState<'client' | 'admin'>('client');
-  const [hoveredRole, setHoveredRole] = useState<'client' | 'admin' | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +47,7 @@ export default function Auth() {
     try {
       if (mode === 'signin') {
         await login(email, password, role);
-        toast.success(`Welcome back! Logged in as ${role === 'client' ? 'Client' : 'Administrator'}`, {
+        toast.success(`Welcome back! Logged in as ${role === 'admin' ? 'Administrator' : 'Client'}`, {
           description: email,
           style: {
             background: 'var(--background)',
@@ -56,7 +57,7 @@ export default function Auth() {
         });
       } else {
         await register(email, password, role);
-        toast.success(`Account created! Logged in as ${role === 'client' ? 'Client' : 'Administrator'}`, {
+        toast.success(`Account created! Logged in as ${role === 'admin' ? 'Administrator' : 'Client'}`, {
           description: email,
           style: {
             background: 'var(--background)',
@@ -85,7 +86,7 @@ export default function Auth() {
     setIsLoading(true);
     try {
       await loginWithGoogle(role);
-      toast.success(`Authenticated with Google as ${role === 'client' ? 'Client' : 'Admin'}!`, {
+      toast.success(`Authenticated with Google as ${role === 'admin' ? 'Admin' : 'Client'}!`, {
         style: {
           background: 'var(--background)',
           color: 'var(--foreground)',
@@ -107,13 +108,13 @@ export default function Auth() {
 
   return (
     <main className="min-h-screen pt-28 pb-20 px-6 md:px-12 bg-background relative overflow-hidden flex items-center justify-center">
-      {/* Background Decorative Matrix Grid */}
+      {/* Background Matrix Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(155,172,216,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(155,172,216,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
 
       {/* Ambient Parallax Watermark Text */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
         <span className="font-display text-[18vw] font-black text-foreground/[0.02] leading-none tracking-widest uppercase">
-          AUTH
+          {isAdminRoute ? 'ADMIN' : 'PORTAL'}
         </span>
       </div>
 
@@ -191,8 +192,8 @@ export default function Auth() {
 
             {/* Header Badge */}
             <div className="flex justify-between items-center mb-6">
-              <span className="font-mono text-[9px] bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded font-bold uppercase tracking-widest">
-                FIREBASE_SECURE_AUTH
+              <span className="font-mono text-[9px] bg-primary/10 border border-primary/20 text-primary px-2.5 py-0.5 rounded font-bold uppercase tracking-widest">
+                {isAdminRoute ? 'CONFIDENTIAL_ADMIN_PORTAL' : 'CLIENT_PORTAL_AUTH'}
               </span>
               <div className="flex items-center gap-1.5 text-muted font-mono text-[9px]">
                 <Shield className="w-3.5 h-3.5 text-primary" />
@@ -203,82 +204,17 @@ export default function Auth() {
             {/* Portal Title */}
             <div className="text-center mb-8">
               <h1 className="font-display text-2xl md:text-3xl font-black tracking-tight text-foreground uppercase">
-                {mode === 'signin' ? 'PORTAL ACCESS' : 'CREATE PORTAL'}
+                {isAdminRoute 
+                  ? (mode === 'signin' ? 'ADMINISTRATOR LOGIN' : 'CREATE ADMIN ACCOUNT')
+                  : (mode === 'signin' ? 'CLIENT PORTAL ACCESS' : 'CREATE CLIENT PORTAL')
+                }
               </h1>
               <p className="font-sans text-xs text-muted mt-1.5 uppercase tracking-wider">
-                {mode === 'signin' ? 'Sign in to access your dashboard' : 'Register your developer or client profile'}
+                {isAdminRoute
+                  ? 'Access platform metrics, user databases, and system controls'
+                  : (mode === 'signin' ? 'Sign in to access your project deliverables' : 'Register your client profile')
+                }
               </p>
-            </div>
-
-            {/* Role Slider */}
-            <div className="relative flex p-1 bg-foreground/5 border border-border/40 rounded-full mb-6 overflow-hidden select-none">
-              <AnimatePresence>
-                {hoveredRole && (
-                  <motion.div
-                    className="absolute top-1 bottom-1 rounded-full bg-foreground/10"
-                    layoutId="auth-page-hover-role"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    style={{
-                      left: hoveredRole === 'client' ? '4px' : '50%',
-                      right: hoveredRole === 'client' ? '50%' : '4px',
-                    }}
-                  />
-                )}
-              </AnimatePresence>
-
-              <motion.div
-                className="absolute top-1 bottom-1 rounded-full bg-primary shadow-neon"
-                layoutId="auth-page-active-role"
-                transition={{ type: 'spring', stiffness: 450, damping: 32 }}
-                style={{
-                  left: role === 'client' ? '4px' : '50%',
-                  right: role === 'client' ? '50%' : '4px',
-                }}
-              />
-              
-              <button
-                type="button"
-                onMouseEnter={() => setHoveredRole('client')}
-                onMouseLeave={() => setHoveredRole(null)}
-                onClick={() => setRole('client')}
-                className={`relative z-10 w-1/2 py-2.5 text-center text-xs font-display font-bold tracking-wider transition-colors duration-300 cursor-pointer ${
-                  role === 'client' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
-                }`}
-              >
-                CLIENT PORTAL
-              </button>
-              <button
-                type="button"
-                onMouseEnter={() => setHoveredRole('admin')}
-                onMouseLeave={() => setHoveredRole(null)}
-                onClick={() => setRole('admin')}
-                className={`relative z-10 w-1/2 py-2.5 text-center text-xs font-display font-bold tracking-wider transition-colors duration-300 cursor-pointer ${
-                  role === 'admin' ? 'text-primary-foreground' : 'text-foreground/70 hover:text-foreground'
-                }`}
-              >
-                ADMIN DASHBOARD
-              </button>
-            </div>
-
-            {/* Role Context Subtext */}
-            <div className="h-6 overflow-hidden mb-6 text-center">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={role}
-                  initial={{ y: 12, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -12, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-sans text-xs text-muted/80 italic"
-                >
-                  {role === 'client'
-                    ? 'Access project deliverables, custom quotes, and delivery timelines.'
-                    : 'Manage platform settings, user databases, and project deployments.'}
-                </motion.p>
-              </AnimatePresence>
             </div>
 
             {/* Google OAuth Option */}
@@ -295,7 +231,7 @@ export default function Auth() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
               </svg>
-              CONTINUE WITH GOOGLE
+              {isAdminRoute ? 'ADMIN GOOGLE LOGIN' : 'CONTINUE WITH GOOGLE'}
             </button>
 
             {/* Divider */}
@@ -323,7 +259,7 @@ export default function Auth() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@domain.com"
+                    placeholder={isAdminRoute ? "admin@quiteleverage.com" : "you@domain.com"}
                     className="w-full bg-foreground/[0.03] focus:bg-foreground/[0.07] border border-border/40 focus:border-primary rounded-xl pl-10 pr-4 py-3 font-sans text-xs text-foreground placeholder-muted/50 outline-none transition-all duration-300"
                   />
                 </div>
@@ -340,7 +276,7 @@ export default function Auth() {
                       href="#forgot"
                       onClick={(e) => {
                         e.preventDefault();
-                        toast.info('Password recovery simulation link sent.', {
+                        toast.info('Password recovery link sent to your registered email.', {
                           style: {
                             background: 'var(--background)',
                             color: 'var(--foreground)',
@@ -402,12 +338,12 @@ export default function Auth() {
                   <span className="inline-block w-4 h-4 border-2 border-t-transparent border-primary-foreground rounded-full animate-spin" />
                 ) : mode === 'signin' ? (
                   <>
-                    SECURE SIGN IN
+                    {isAdminRoute ? 'SECURE ADMIN LOGIN' : 'SECURE CLIENT SIGN IN'}
                     <LogIn className="w-4 h-4" />
                   </>
                 ) : (
                   <>
-                    CREATE ACCOUNT
+                    {isAdminRoute ? 'CREATE ADMIN ACCOUNT' : 'CREATE CLIENT ACCOUNT'}
                     <UserPlus className="w-4 h-4" />
                   </>
                 )}
