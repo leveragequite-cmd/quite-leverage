@@ -35,7 +35,9 @@ export default function ContactForm() {
           name,
           email,
           message,
-          _subject: `New Inquiry from Quite Leverage Website: ${name}`,
+          _replyto: email,
+          _subject: `New Inquiry from ${name}`,
+          _template: "table",
           _captcha: "false"
         })
       });
@@ -44,8 +46,8 @@ export default function ContactForm() {
 
       if (response.ok && data.success !== "false") {
         toast.success('Inquiry submitted successfully!', {
-          description: `Message sent for ${name} (${email}). Note: Check leveragequite@gmail.com (including Spam folder) for FormSubmit's initial 1-click activation link if this is your first inquiry.`,
-          duration: 7000,
+          description: `Thank you ${name}! Your message has been sent directly to leveragequite@gmail.com.`,
+          duration: 6000,
           style: {
             background: 'var(--background)',
             color: 'var(--foreground)',
