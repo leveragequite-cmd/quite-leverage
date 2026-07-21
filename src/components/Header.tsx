@@ -87,14 +87,17 @@ export default function Header({ onOpenAuth }: HeaderProps) {
           {/* Login / Profile Button */}
           {user ? (
             <div className="flex items-center gap-3">
-              <div className="flex flex-col items-end">
+              <Link 
+                to="/auth"
+                className="flex flex-col items-end hover:opacity-80 transition-opacity"
+              >
                 <span className="font-sans text-[10px] font-bold text-foreground/90 truncate max-w-[120px]" title={user.email || ''}>
                   {user.email}
                 </span>
                 <span className="font-mono text-[8px] text-primary font-bold tracking-widest uppercase">
                   {user.role === 'admin' ? 'ADMIN' : 'CLIENT'}
                 </span>
-              </div>
+              </Link>
               <button
                 onClick={logout}
                 className="p-2.5 rounded-full bg-foreground/5 hover:bg-red-500/10 border border-border/20 hover:border-red-500/40 text-foreground hover:text-red-500 transition-all duration-300 cursor-pointer"
@@ -104,14 +107,15 @@ export default function Header({ onOpenAuth }: HeaderProps) {
               </button>
             </div>
           ) : (
-            <button
+            <Link
+              to="/auth"
               id="login-btn-desktop"
               onClick={onOpenAuth}
               className="px-5 py-2.5 rounded-lg bg-foreground/5 hover:bg-primary border border-border/30 hover:border-transparent font-sans text-xs font-bold tracking-widest text-foreground hover:text-primary-foreground hover:shadow-neon transition-all duration-300 flex items-center gap-2 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               LOGIN
-            </button>
+            </Link>
           )}
         </div>
 
@@ -185,7 +189,8 @@ export default function Header({ onOpenAuth }: HeaderProps) {
                   </button>
                 </div>
               ) : (
-                <button
+                <Link
+                  to="/auth"
                   id="login-btn-mobile"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
@@ -195,7 +200,7 @@ export default function Header({ onOpenAuth }: HeaderProps) {
                 >
                   <LogIn className="w-4 h-4" />
                   LOGIN
-                </button>
+                </Link>
               )}
             </div>
           </motion.div>

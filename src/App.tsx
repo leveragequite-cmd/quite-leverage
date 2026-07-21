@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from './lib/theme';
@@ -10,10 +10,11 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 
-import Home from './pages/Home';
-import About from './pages/About';
-import Portfolio from './pages/Portfolio';
-import Discuss from './pages/Discuss';
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Portfolio = lazy(() => import('./pages/Portfolio'));
+const Discuss = lazy(() => import('./pages/Discuss'));
+const Auth = lazy(() => import('./pages/Auth'));
 
 // Helper component to restore scroll state to top on page transition
 function ScrollToTop() {
@@ -56,12 +57,21 @@ export default function App() {
 
           {/* Core pages mapped via Routes */}
           <main className="relative z-10 w-full">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/portfolio" element={<Portfolio />} />
-              <Route path="/discuss" element={<Discuss />} />
-            </Routes>
+            <Suspense fallback={
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            }>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/discuss" element={<Discuss />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/login" element={<Auth />} />
+                <Route path="/signin" element={<Auth />} />
+              </Routes>
+            </Suspense>
           </main>
 
           {/* Footer with high-fidelity halftone SVG text ripples */}
