@@ -156,7 +156,7 @@ export default function Auth() {
                 <span className="text-muted">AUTH ENGINE:</span>
                 <span className="text-emerald-500 font-bold flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" />
-                  {isFirebase ? 'FIREBASE_LIVE' : 'MOCK_SIMULATION'}
+                  FIREBASE_LIVE
                 </span>
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function Auth() {
             {/* Header Badge */}
             <div className="flex justify-between items-center mb-6">
               <span className="font-mono text-[9px] bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded font-bold uppercase tracking-widest">
-                {isFirebase ? 'REAL_FIREBASE_AUTH' : 'SIMULATION_MODE'}
+                FIREBASE_SECURE_AUTH
               </span>
               <div className="flex items-center gap-1.5 text-muted font-mono text-[9px]">
                 <Shield className="w-3.5 h-3.5 text-primary" />

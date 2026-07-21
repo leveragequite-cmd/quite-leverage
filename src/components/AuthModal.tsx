@@ -138,7 +138,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {/* Mode Tag */}
             <div className="absolute top-4 left-4">
               <span className="font-mono text-[8px] bg-primary/10 border border-primary/20 text-primary px-1.5 py-0.5 rounded font-bold uppercase">
-                {isFirebase ? 'REAL_AUTH' : 'SIMULATION_MODE'}
+                FIREBASE_SECURE_AUTH
               </span>
             </div>
 

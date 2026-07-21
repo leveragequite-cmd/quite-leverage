@@ -35,29 +35,37 @@ export default function ContactForm() {
           name,
           email,
           message,
-          _subject: `New Inquiry from Quite Leverage Website: ${name}`
+          _subject: `New Inquiry from Quite Leverage Website: ${name}`,
+          _captcha: "false"
         })
       });
       
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success !== "false") {
         toast.success('Inquiry submitted successfully!', {
-          description: `Thank you, ${name}. We have forwarded your message to leveragequite@gmail.com and will respond shortly.`,
+          description: `Message sent for ${name} (${email}). Note: Check leveragequite@gmail.com (including Spam folder) for FormSubmit's initial 1-click activation link if this is your first inquiry.`,
+          duration: 7000,
           style: {
             background: 'var(--background)',
             color: 'var(--foreground)',
             borderColor: 'var(--border)',
           }
         });
-        // Clear form
         setName('');
         setEmail('');
         setMessage('');
       } else {
-        throw new Error('Failed to forward email.');
+        throw new Error(data.message || 'FormSubmit response error');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Email forward error:', err);
-      toast.error('Submission failed. Please check your internet connection or email us directly.', {
+      // Fallback: Open mailto client directly with prefilled parameters
+      const mailtoUrl = `mailto:leveragequite@gmail.com?subject=${encodeURIComponent(`New Inquiry from ${name}`)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+      window.location.href = mailtoUrl;
+
+      toast.info('Opening your email client to send directly to leveragequite@gmail.com', {
+        description: 'Thank you for reaching out!',
         style: {
           background: 'var(--background)',
           color: 'var(--foreground)',
