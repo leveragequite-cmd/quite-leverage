@@ -28,6 +28,7 @@ export default function Header({ onOpenAuth }: HeaderProps) {
     { label: 'ABOUT US', href: '/about' },
     { label: 'PORTFOLIO', href: '/portfolio' },
     { label: 'LET\'S DISCUSS', href: '/discuss' },
+    { label: 'FOLLOW US', href: '/follow-us' },
   ];
 
   return (

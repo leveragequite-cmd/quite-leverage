@@ -42,6 +42,7 @@ export default function Footer() {
             <Link to="/about" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">About Us</Link>
             <Link to="/portfolio" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Portfolio</Link>
             <Link to="/discuss" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Let's Discuss</Link>
+            <Link to="/follow-us" className="font-sans text-xs text-foreground/80 hover:text-primary transition-colors">Follow Us</Link>
           </div>
         </div>
 

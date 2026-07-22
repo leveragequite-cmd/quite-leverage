@@ -150,10 +150,6 @@ export default function Auth() {
                 <span className="text-primary font-bold uppercase tracking-wider">{user.role}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted">SESSION ID:</span>
-                <span className="text-foreground/80 text-[10px] truncate max-w-[180px]">{user.uid}</span>
-              </div>
-              <div className="flex justify-between items-center">
                 <span className="text-muted">AUTH ENGINE:</span>
                 <span className="text-emerald-500 font-bold flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" />

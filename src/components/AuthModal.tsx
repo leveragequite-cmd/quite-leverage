@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, LogIn, ArrowRight, UserPlus } from 'lucide-react';
+import { X, Mail, Lock, LogIn, ArrowRight, UserPlus, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../lib/authContext';
 
 interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const { login, register, loginWithGoogle, isFirebase } = useAuth();
+  const { 
+    login, 
+    register, 
+    loginWithGoogle, 
+    isFirebase, 
+    isAuthModalOpen, 
+    closeAuthModal, 
+    authModalSubtitle 
+  } = useAuth();
+  
+  const modalOpen = isOpen !== undefined ? isOpen : isAuthModalOpen;
+  const modalClose = onClose || closeAuthModal;
   
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [role, setRole] = useState<'client' | 'admin'>('client');
@@ -68,7 +79,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           }
         });
       }
-      onClose();
+      modalClose();
       // Reset inputs
       setEmail('');
       setPassword('');
@@ -97,7 +108,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           borderColor: 'var(--border)',
         }
       });
-      onClose();
+      modalClose();
     } catch (err: any) {
       toast.error(err.message || 'Google Authentication failed', {
         style: {
@@ -113,14 +124,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
           {/* Backdrop blurring effect */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={modalClose}
             className="fixed inset-0 bg-background/80 backdrop-blur-md"
           />
 
@@ -145,14 +156,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {/* Close Button */}
             <button
               id="close-auth-modal"
-              onClick={onClose}
+              onClick={modalClose}
               className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-foreground/10 text-foreground/70 hover:text-foreground transition-all duration-200 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Header */}
-            <div className="text-center mb-6 mt-2">
+            <div className="text-center mb-5 mt-2">
               <h2 className="font-display text-xl font-bold tracking-tight text-foreground uppercase">
                 {mode === 'signin' ? 'CLIENT PORTAL ACCESS' : 'CREATE CLIENT PORTAL'}
               </h2>
@@ -160,6 +171,23 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {mode === 'signin' ? 'Sign in to access your project deliverables' : 'Register your client account'}
               </p>
             </div>
+
+            {/* Enhanced Login to Access Full Potential Alert Banner */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-5 p-3.5 rounded-xl bg-primary/10 border border-primary/30 flex items-start gap-3 text-left shadow-sm"
+            >
+              <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5 animate-pulse" />
+              <div>
+                <h4 className="font-mono text-[10px] font-bold text-primary uppercase tracking-widest block">
+                  LOGIN TO ACCESS FULL POTENTIAL
+                </h4>
+                <p className="font-sans text-xs text-foreground/90 font-medium leading-relaxed mt-0.5">
+                  {authModalSubtitle || "Sign in to unlock interactive project discussions, real-time architect consultation, and transparent scope estimations."}
+                </p>
+              </div>
+            </motion.div>
 
             {/* Google OAuth Button */}
             <button

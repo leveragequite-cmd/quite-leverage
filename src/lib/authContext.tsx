@@ -20,6 +20,10 @@ interface AuthContextType {
   user: UserSession | null;
   isLoading: boolean;
   isFirebase: boolean;
+  isAuthModalOpen: boolean;
+  authModalSubtitle?: string;
+  openAuthModal: (customSubtitle?: string) => void;
+  closeAuthModal: () => void;
   login: (email: string, password: string, role: 'client' | 'admin') => Promise<void>;
   register: (email: string, password: string, role: 'client' | 'admin') => Promise<void>;
   loginWithGoogle: (role: 'client' | 'admin') => Promise<void>;
@@ -37,6 +41,18 @@ const PENDING_ROLE_KEY = 'quite-leverage-pending-role';
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalSubtitle, setAuthModalSubtitle] = useState<string | undefined>(undefined);
+
+  const openAuthModal = (subtitle?: string) => {
+    setAuthModalSubtitle(subtitle);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+    setAuthModalSubtitle(undefined);
+  };
 
   // Helper to get role for an email/UID
   const getUserRole = (id: string, selectedRole: 'client' | 'admin'): 'client' | 'admin' => {
@@ -246,6 +262,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isLoading,
         isFirebase: isFirebaseConfigured,
+        isAuthModalOpen,
+        authModalSubtitle,
+        openAuthModal,
+        closeAuthModal,
         login,
         register,
         loginWithGoogle,
